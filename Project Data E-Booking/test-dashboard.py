@@ -102,7 +102,60 @@ if bulan == "All":
         ax.set_ylabel('Session Time')
         plt.xticks(rotation=45)
         st.pyplot(fig)
+        
+    st.markdown("**Amount of Vanue Order**")
+    fig, ax = plt.subplots(figsize=(12, 8))
+    sns.barplot(x=df['Venue Name'].value_counts(), y=df['Venue Name'].value_counts().index, palette='Blues_r')
+    ax.set_title('Number of Bookings per Venue')
+    ax.set_xlabel('Number of Bookings')
+    ax.set_ylabel('Venue Name')
+    st.pyplot(fig)
 
+if bulan != "All":
+    df = df[df['Month'] == bulan]
+    with col1:
+        visitor = df['Estimated Visitors'].sum()
+        st.metric('Total Estimated Visitors', value = visitor)
+        
+    with col2:
+        order = df['Type Date'].count()
+        st.metric('Total Order', value = order)
 
+    with col3:
+        total_perjuta = df['Price'].sum() / 1000000
+        income = '{0:.2f}'.format(total_perjuta)
+        st.metric('Total Income', value = "Rp" + income + "Jt")
+
+    # Orders by Month
+    order_counts = df.groupby(['Month', 'Date'])['Status Order'].count().reset_index()
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+    chart = alt.Chart(order_counts).mark_bar().encode(
+        x=alt.X('Date', bin=alt.Bin(maxbins=31)),
+        y=alt.Y('Status Order', title='Total Order'),
+        tooltip=['Date', 'Status Order']
+    ).properties(
+        title='Total Orders by Date',
+        width=800,
+        height=450)
+    st.altair_chart(chart)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Ratio of Order Distribution**")
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.pie(df['Status Order'].value_counts(), labels=df['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
+        ax.set_title('Status Order Distribution')
+        st.pyplot(fig)
+
+    with col2:
+        st.markdown("**Relation Between Session Time and Order Count**")
+        fig, ax = plt.subplots(figsize=(6, 6))
+        sns.barplot(x=df['Session Time'].value_counts(), y=df['Session Time'].value_counts().index, palette='Blues_r', ax=ax)
+        ax.set_title('Number of Bookings per Session Time')
+        ax.set_xlabel('Number of Bookings')
+        ax.set_ylabel('Session Time')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
 
     
