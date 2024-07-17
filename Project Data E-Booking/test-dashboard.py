@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 import altair as alt
+import streamlit.components.v1 as components
 
 # Mengread dataset dari file hasil pemrosesan
 df = pd.read_excel("Data E-booking GBK.xlsx")
@@ -45,20 +46,25 @@ st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 col1, col2, col3 = st.columns(3)
 
 if month == "All": 
-    
     with col1:
+        tile = col1.container(
+            height=100)
         visitor = df['Estimated Visitors'].sum()
-        st.metric('Total Estimated Visitors', value = visitor)
+        tile.metric('Total Estimated Visitors', value = visitor)
         
     with col2:
+        tile = col2.container(
+            height=100)
         order = df['Type Date'].count()
-        st.metric('Total Order', value = order)
+        tile.metric('Total Order', value = order)
 
     with col3:
+        tile = col3.container(
+            height=100)
         total_permiliar = df['Price'].sum() / 1000000000
         income = '{0:.2f}'.format(total_permiliar)
-        st.metric('Total Income', value = "Rp" + income + "M")
-
+        tile.metric('Total Income', value = "Rp" + income + "M")
+    
     #Orders by Month
     order_counts = df.groupby('Month')['Status Order'].count().reset_index()
 
@@ -105,37 +111,43 @@ if month != "All":
 
     if month == "January":
         with col1:
+            tile = col1.container(height=125)
             visitor = df_month['Estimated Visitors'].sum()
-            st.metric('Total Estimated Visitors', value = visitor, delta = visitor.item(), delta_color="off")
+            tile.metric('Total Estimated Visitors', value = visitor, delta = visitor.item(), delta_color="off")
             
         with col2:
+            tile = col2.container(height=125)
             order = df_month['Type Date'].count()
-            st.metric('Total Order', value = order, delta = order.item(), delta_color="off")
+            tile.metric('Total Order', value = order, delta = order.item(), delta_color="off")
 
         with col3:
+            tile = col3.container(height=125)
             total_perjuta = df_month['Price'].sum() / 1000000
             income = '{0:.2f}'.format(total_perjuta)
-            st.metric('Total Income', value = "Rp" + income + "Jt", delta = "0%", delta_color="off")
+            tile.metric('Total Income', value = "Rp" + income + "Jt", delta = "0%", delta_color="off")
     else:
         with col1:
+            tile = col1.container(height=125)
             prev_visitor = df_prev_month['Estimated Visitors'].sum()
             visitor = df_month['Estimated Visitors'].sum()
             delta_visitor = (visitor - prev_visitor).item()
-            st.metric('Total Estimated Visitors', value = visitor, delta = delta_visitor)
+            tile.metric('Total Estimated Visitors', value = visitor, delta = delta_visitor)
             
         with col2:
+            tile = col2.container(height=125)
             prev_order = df_prev_month['Type Date'].count()
             order = df_month['Type Date'].count()
             delta_order = (order - prev_order).item()
-            st.metric('Total Order', value = order, delta = delta_order)
+            tile.metric('Total Order', value = order, delta = delta_order)
 
         with col3:
+            tile = col3.container(height=125)
             prev_total_perjuta = df_prev_month['Price'].sum() / 1000000
             total_perjuta = df_month['Price'].sum() / 1000000
             income = '{0:.2f}'.format(total_perjuta)
             delta_income = total_perjuta - prev_total_perjuta
             delta_income_percentage = '{0:.2%}'.format((total_perjuta - prev_total_perjuta) / prev_total_perjuta)
-            st.metric('Total Income', value = "Rp" + income + "Jt", delta = delta_income_percentage)
+            tile.metric('Total Income', value = "Rp" + income + "Jt", delta = delta_income_percentage)
 
     order_counts = df_month.groupby(df_month['Schedule Date'].dt.date).size().reset_index(name='Total Orders')
 
