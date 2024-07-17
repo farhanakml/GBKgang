@@ -137,8 +137,31 @@ if month != "All":
             delta_income_percentage = '{0:.2%}'.format((total_perjuta - prev_total_perjuta) / prev_total_perjuta)
             st.metric('Total Income', value = "Rp" + income + "Jt", delta = delta_income_percentage)
 
-    # Orders by Month
+    order_counts = df_month.groupby(df_month['Schedule Date'].dt.date).size().reset_index(name='Total Orders')
+
+    start_date = df_month['Schedule Date'].min().replace(day=1)
+    end_date = df_month['Schedule Date'].max().replace(day=1) + pd.DateOffset(months=1) - pd.DateOffset(days=1)
+    date_range = pd.date_range(start=start_date, end=end_date)
+    # Create the chart
+    chart = alt.Chart(order_counts).mark_bar().encode(
+        x=alt.X('Schedule Date:T', title='Date', axis=alt.Axis(format='%d', labelAngle=-0)),
+        y=alt.Y('Total Orders:Q', title='Total Orders'),
+        tooltip=['Schedule Date:T', 'Total Orders:Q']
+    ).properties(
+        title='Total Orders per Date in ' + month,
+        width=700,
+        height=400
+    ).configure_axisX(
+        labelAngle=-45,
+        labelFontSize=10,
+        tickCount=len(date_range),
+        labelOverlap=False
+    )
     
+    # Display the chart in Streamlit
+    st.altair_chart(chart)
+    
+    # Orders by Month
     
     # order_counts = df.groupby(['Month', 'Date'])['Status Order'].count().reset_index()
     # month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
