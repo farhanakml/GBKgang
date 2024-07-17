@@ -7,22 +7,18 @@ import altair as alt
 
 # Mengread dataset dari file hasil pemrosesan
 df = pd.read_excel("Data E-booking GBK.xlsx")
-
-
-
-
-
+month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 
 with st.sidebar:
     # logo untuk sidebar
     st.image("gbklogo.png")
 
-    bulan = st.selectbox(
+    month = st.selectbox(
     "Month :",
     ('All', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'))
     
-    st.write("You selected:", bulan)
+    st.write("You selected:", month)
     
     venues = {
     "Select" : {"":""},
@@ -42,21 +38,13 @@ with st.sidebar:
     # Display the price for the selected venue and session
     price = venues[selected_venue][selected_session]
     st.write(f"{price}")
-    
-    
-    
-    
-    # # Pembuatan Toggle untuk melihat dataset
-    # toggle_dataset = st.toggle('Cek Dataset')
-
-
 
 # Membuat judul dashboard
 st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 
 col1, col2, col3 = st.columns(3)
 
-if bulan == "All": 
+if month == "All": 
     
     with col1:
         visitor = df['Estimated Visitors'].sum()
@@ -73,7 +61,6 @@ if bulan == "All":
 
     #Orders by Month
     order_counts = df.groupby('Month')['Status Order'].count().reset_index()
-    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
     chart = alt.Chart(order_counts).mark_bar().encode(
         x=alt.X('Month', sort=month_order, title='Month'),
@@ -111,47 +98,73 @@ if bulan == "All":
     ax.set_ylabel('Venue Name')
     st.pyplot(fig)
 
-if bulan != "All":
-    df = df[df['Month'] == bulan]
-    with col1:
-        visitor = df['Estimated Visitors'].sum()
-        st.metric('Total Estimated Visitors', value = visitor)
-        
-    with col2:
-        order = df['Type Date'].count()
-        st.metric('Total Order', value = order)
+if month != "All":
+    df_month = df[df['Month'] == month]
+    prev_month = month_order.index(month) - 1
+    df_prev_month = df[df['Month'] == month_order[prev_month]]
 
-    with col3:
-        total_perjuta = df['Price'].sum() / 1000000
-        income = '{0:.2f}'.format(total_perjuta)
-        st.metric('Total Income', value = "Rp" + income + "Jt")
+    if month == "January":
+        with col1:
+            visitor = df_month['Estimated Visitors'].sum()
+            st.metric('Total Estimated Visitors', value = visitor, delta = visitor.item(), delta_color="off")
+            
+        with col2:
+            order = df_month['Type Date'].count()
+            st.metric('Total Order', value = order, delta = order.item(), delta_color="off")
+
+        with col3:
+            total_perjuta = df_month['Price'].sum() / 1000000
+            income = '{0:.2f}'.format(total_perjuta)
+            st.metric('Total Income', value = "Rp" + income + "Jt", delta = "0%", delta_color="off")
+    else:
+        with col1:
+            prev_visitor = df_prev_month['Estimated Visitors'].sum()
+            visitor = df_month['Estimated Visitors'].sum()
+            delta_visitor = (visitor - prev_visitor).item()
+            st.metric('Total Estimated Visitors', value = visitor, delta = delta_visitor)
+            
+        with col2:
+            prev_order = df_prev_month['Type Date'].count()
+            order = df_month['Type Date'].count()
+            delta_order = (order - prev_order).item()
+            st.metric('Total Order', value = order, delta = delta_order)
+
+        with col3:
+            prev_total_perjuta = df_prev_month['Price'].sum() / 1000000
+            total_perjuta = df_month['Price'].sum() / 1000000
+            income = '{0:.2f}'.format(total_perjuta)
+            delta_income = total_perjuta - prev_total_perjuta
+            delta_income_percentage = '{0:.2%}'.format((total_perjuta - prev_total_perjuta) / prev_total_perjuta)
+            st.metric('Total Income', value = "Rp" + income + "Jt", delta = delta_income_percentage)
 
     # Orders by Month
-    order_counts = df.groupby(['Month', 'Date'])['Status Order'].count().reset_index()
-    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    
+    
+    # order_counts = df.groupby(['Month', 'Date'])['Status Order'].count().reset_index()
+    # month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    chart = alt.Chart(order_counts).mark_bar().encode(
-        x=alt.X('Date', bin=alt.Bin(maxbins=31)),
-        y=alt.Y('Status Order', title='Total Order'),
-        tooltip=['Date', 'Status Order']
-    ).properties(
-        title='Total Orders by Date',
-        width=800,
-        height=450)
-    st.altair_chart(chart)
+    # chart = alt.Chart(order_counts).mark_bar().encode(
+    #     x=alt.X('Date', bin=alt.Bin(maxbins=31)),
+    #     y=alt.Y('Status Order', title='Total Order'),
+    #     tooltip=['Date', 'Status Order']
+    # ).properties(
+    #     title='Total Orders by Date',
+    #     width=800,
+    #     height=450)
+    # st.altair_chart(chart)
 
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**Ratio of Order Distribution**")
         fig, ax = plt.subplots(figsize=(8, 6))
-        ax.pie(df['Status Order'].value_counts(), labels=df['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
+        ax.pie(df_month['Status Order'].value_counts(), labels=df_month['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
         ax.set_title('Status Order Distribution')
         st.pyplot(fig)
 
     with col2:
         st.markdown("**Relation Between Session Time and Order Count**")
         fig, ax = plt.subplots(figsize=(6, 6))
-        sns.barplot(x=df['Session Time'].value_counts(), y=df['Session Time'].value_counts().index, palette='Blues_r', ax=ax)
+        sns.barplot(x=df_month['Session Time'].value_counts(), y=df_month['Session Time'].value_counts().index, palette='Blues_r', ax=ax)
         ax.set_title('Number of Bookings per Session Time')
         ax.set_xlabel('Number of Bookings')
         ax.set_ylabel('Session Time')
