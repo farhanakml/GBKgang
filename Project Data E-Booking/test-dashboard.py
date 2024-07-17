@@ -10,6 +10,43 @@ import streamlit.components.v1 as components
 df = pd.read_excel("Data E-booking GBK.xlsx")
 month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+def make_donut(input_response, input_text, input_color):
+  if input_color == 'green':
+      chart_color = ['#27AE60', '#12783D']
+  if input_color == 'red':
+      chart_color = ['#E74C3C', '#781F16']
+    
+  source = pd.DataFrame({
+      "Topic": ['', input_text],
+      "% value": [100-input_response, input_response]
+  })
+  source_bg = pd.DataFrame({
+      "Topic": ['', input_text],
+      "% value": [100, 0]
+  })
+    
+  plot = alt.Chart(source).mark_arc(innerRadius=45, cornerRadius=25).encode(
+      theta="% value",
+      color= alt.Color("Topic:N",
+                      scale=alt.Scale(
+                          #domain=['A', 'B'],
+                          domain=[input_text, ''],
+                          # range=['#29b5e8', '#155F7A']),  # 31333F
+                          range=chart_color),
+                      legend=None),
+  ).properties(width=130, height=130)
+    
+  text = plot.mark_text(align='center', color="#29b5e8", font="Lato", fontSize=25, fontWeight=700, fontStyle="italic").encode(text=alt.value(f'{input_response} %'))
+  plot_bg = alt.Chart(source_bg).mark_arc(innerRadius=45, cornerRadius=20).encode(
+      theta="% value",
+      color= alt.Color("Topic:N",
+                      scale=alt.Scale(
+                          # domain=['A', 'B'],
+                          domain=[input_text, ''],
+                          range=chart_color),  # 31333F
+                      legend=None),
+  ).properties(width=130, height=130)
+  return plot_bg + plot + text
 
 with st.sidebar:
     # logo untuk sidebar
@@ -48,19 +85,19 @@ col1, col2, col3 = st.columns(3)
 if month == "All": 
     with col1:
         tile = col1.container(
-            height=100)
+            height=105)
         visitor = df['Estimated Visitors'].sum()
         tile.metric('Total Estimated Visitors', value = visitor)
         
     with col2:
         tile = col2.container(
-            height=100)
+            height=105)
         order = df['Type Date'].count()
         tile.metric('Total Order', value = order)
 
     with col3:
         tile = col3.container(
-            height=100)
+            height=105)
         total_permiliar = df['Price'].sum() / 1000000000
         income = '{0:.2f}'.format(total_permiliar)
         tile.metric('Total Income', value = "Rp" + income + "M")
@@ -80,11 +117,22 @@ if month == "All":
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**Ratio of Order Distribution**")
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.pie(df['Status Order'].value_counts(), labels=df['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
-        ax.set_title('Status Order Distribution')
-        st.pyplot(fig)
+        # st.markdown("**Ratio of Order Distribution**")
+        # fig, ax = plt.subplots(figsize=(8, 6))
+        # ax.pie(df['Status Order'].value_counts(), labels=df['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
+        # ax.set_title('Status Order Distribution')
+        # st.pyplot(fig)
+
+        st.write("**Booked**")
+        b=df[df['Status Order'] == 'Booked'].value_counts().sum()/df['Status Order'].value_counts().sum()*100
+        donut_chart_greater = make_donut(round(b,2), 'Inbound Migration', 'green')
+        st.altair_chart(donut_chart_greater)
+
+        st.write("**Canceled**")
+        c=df[df['Status Order'] == 'Canceled'].value_counts().sum()/df['Status Order'].value_counts().sum()*100
+        donut_chart_greater = make_donut(round(c,2), 'Inbound Migration', 'red')
+        st.altair_chart(donut_chart_greater)
+
 
     with col2:
         st.markdown("**Relation Between Session Time and Order Count**")
@@ -190,11 +238,21 @@ if month != "All":
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**Ratio of Order Distribution**")
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.pie(df_month['Status Order'].value_counts(), labels=df_month['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
-        ax.set_title('Status Order Distribution')
-        st.pyplot(fig)
+        # st.markdown("**Ratio of Order Distribution**")
+        # fig, ax = plt.subplots(figsize=(8, 6))
+        # ax.pie(df_month['Status Order'].value_counts(), labels=df_month['Status Order'].value_counts().index, autopct='%1.1f%%', startangle=140, colors=['#4169e1','#dc143c'])
+        # ax.set_title('Status Order Distribution')
+        # st.pyplot(fig)
+
+        st.write("**Booked**")
+        b=df_month[df_month['Status Order'] == 'Booked'].value_counts().sum()/df_month['Status Order'].value_counts().sum()*100
+        donut_chart_greater = make_donut(round(b,2), 'Success Transaction', 'green')
+        st.altair_chart(donut_chart_greater)
+
+        st.write("**Canceled**")
+        c=df_month[df_month['Status Order'] == 'Canceled'].value_counts().sum()/df_month['Status Order'].value_counts().sum()*100
+        donut_chart_greater = make_donut(round(c,2), 'Canceled Transaction', 'red')
+        st.altair_chart(donut_chart_greater)
 
     with col2:
         st.markdown("**Relation Between Session Time and Order Count**")
