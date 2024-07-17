@@ -6,6 +6,13 @@ import streamlit as st
 import altair as alt
 import streamlit.components.v1 as components
 
+# Page configuration
+st.set_page_config(
+    page_title="Dashboard E-Booking GBK",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded")
+
 # Mengread dataset dari file hasil pemrosesan
 df = pd.read_excel("Data E-booking GBK.xlsx")
 month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
