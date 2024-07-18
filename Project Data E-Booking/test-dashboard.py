@@ -10,7 +10,7 @@ import streamlit.components.v1 as components
 st.set_page_config(
     page_title="Dashboard E-Booking GBK",
     page_icon="📊",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded")
 
 # Mengread dataset dari file hasil pemrosesan
@@ -140,24 +140,52 @@ if month == "All":
         donut_chart_greater = make_donut(round(c,2), 'Inbound Migration', 'red')
         st.altair_chart(donut_chart_greater)
 
-
     with col2:
-        st.markdown("**Relation Between Session Time and Order Count**")
-        fig, ax = plt.subplots(figsize=(6, 6))
-        sns.barplot(x=df['Session Time'].value_counts(), y=df['Session Time'].value_counts().index, palette='Blues_r', ax=ax)
-        ax.set_title('Number of Bookings per Session Time')
-        ax.set_xlabel('Number of Bookings')
-        ax.set_ylabel('Session Time')
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
-        
-    st.markdown("**Amount of Vanue Order**")
-    fig, ax = plt.subplots(figsize=(12, 8))
-    sns.barplot(x=df['Venue Name'].value_counts(), y=df['Venue Name'].value_counts().index, palette='Blues_r')
-    ax.set_title('Number of Bookings per Venue')
-    ax.set_xlabel('Number of Bookings')
-    ax.set_ylabel('Venue Name')
-    st.pyplot(fig)
+
+    # Relation Between Session Time and Order Count chart
+        session_order_counts = df['Session Time'].value_counts().reset_index()
+        session_order_counts.columns = ['Session Time', 'Count']
+        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
+            tooltip=['Session Time', 'Count']
+        ).properties(
+            title='Number of Bookings per Session Time',
+            width=800,
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+
+        st.altair_chart(session_chart)
+
+    # st.markdown("**Amount of Vanue Order**")
+    # fig, ax = plt.subplots(figsize=(12, 8))
+    # sns.barplot(x=df['Venue Name'].value_counts(), y=df['Venue Name'].value_counts().index, palette='Blues_r')
+    # ax.set_title('Number of Bookings per Venue')
+    # ax.set_xlabel('Number of Bookings')
+    # ax.set_ylabel('Venue Name')
+    # st.pyplot(fig)
+
+    venue_order_counts = df['Venue Name'].value_counts().reset_index()
+    venue_order_counts.columns = ['Venue Name', 'Count']
+    venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
+        x=alt.X('Count:Q', title='Number of Bookings'),
+        y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
+        tooltip=['Venue Name', 'Count']
+    ).properties(
+        title='Number of Bookings per Venue',
+        width=800,
+        height=450,
+        background='rgba(0, 0, 0, 0)',  # Set background to transparent
+        padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+    ).configure_view(
+        strokeOpacity=0  # Remove chart borders to make the background fully transparent
+    )
+
+    st.altair_chart(venue_chart, use_container_width=True)
 
 if month != "All":
     df_month = df[df['Month'] == month]
