@@ -1,2 +1,2 @@
 # GBKgang
-project
+NIGGERGANG
