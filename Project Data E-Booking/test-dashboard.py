@@ -17,32 +17,38 @@ alt.themes.enable("dark")
 df = pd.read_excel("Data E-booking GBK.xlsx")
 month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-def make_donut(input_response, input_text, input_color):
-    chart_color = {
-        'green': ['#27AE60', '#12783D'],
-        'red': ['#E74C3C', '#781F16']
-    }.get(input_color, ['#29b5e8', '#155F7A'])
-    
+def make_donut(booked, canceled, input_color):
+    if input_color == 'green':
+        chart_color = ['#27AE60', '#E74C3C']
+    if input_color == 'red':
+        chart_color = ['#E74C3C', '#781F16']
+
+    total = booked + canceled
+    booked_percentage = booked / total * 100
+    canceled_percentage = canceled / total * 100
+
     source = pd.DataFrame({
-        "Topic": [input_text, ''],
-        "Value": [input_response, 100-input_response]
+        "Status": ["Booked", "Canceled"],
+        "Value": [booked, canceled],
+        "Percentage": [booked_percentage, canceled_percentage]
     })
-    
-    plot = alt.Chart(source).mark_arc(innerRadius=50).encode(
+
+    plot = alt.Chart(source).mark_arc(innerRadius=70, outerRadius=85, cornerRadius=10).encode(
         theta=alt.Theta(field="Value", type="quantitative"),
-        color=alt.Color(field="Topic", type="nominal", scale=alt.Scale(range=chart_color), legend=None)
-    ).properties(width=150, height=150)
-    
-    text = alt.Chart(pd.DataFrame({'text': [f'{input_response:.2f}%']})).mark_text(
-        align='center', 
-        fontSize=20, 
-        fontWeight=600
+        color=alt.Color("Status:N",
+                        scale=alt.Scale(
+                            domain=["Booked", "Canceled"],
+                            range=chart_color),
+                        legend=None),
+        tooltip=[alt.Tooltip("Status:N"), alt.Tooltip("Value:Q"), alt.Tooltip("Percentage:Q", format=".1f")]
+    ).properties(width=200, height=200)
+
+    text = alt.Chart(pd.DataFrame({'text': [f'{booked_percentage:.1f}%']})).mark_text(
+        align='center', font="Lato", fontSize=30, fontWeight=600, color='#27AE60'
     ).encode(
-        text='text:N',
-        x=alt.value(75),
-        y=alt.value(75)
-    )
-    
+        text='text:N'
+    ).properties(width=200, height=200)
+
     return plot + text
 
 # Sidebar
@@ -70,11 +76,11 @@ with st.sidebar:
         }
     }
 
-    st.header("Price Check")
-    selected_venue = st.selectbox("Select Venue", list(venues.keys()))
-    selected_session = st.selectbox("Select Session", list(venues[selected_venue].keys()))
-    price = venues[selected_venue][selected_session]
-    st.write(f"{price}")
+    with st.expander("**Price Check**"):
+        selected_venue = st.selectbox("Select Venue", list(venues.keys()))
+        selected_session = st.selectbox("Select Session", list(venues[selected_venue].keys()))
+        price = venues[selected_venue][selected_session]
+        st.write(f"{price}")
 
 st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 
@@ -132,28 +138,19 @@ with col1:
     if month == "All":
         # Booked donut chart
         st.write("**Booked**")
-        b = df[df['Status Order'] == 'Booked'].value_counts().sum() / df['Status Order'].value_counts().sum() * 100
-        donut_chart_booked = make_donut(round(b, 2), 'Booked', 'green')
-        st.altair_chart(donut_chart_booked, use_container_width=True)
-
-        # Canceled donut chart
-        st.write("**Canceled**")
-        c = df[df['Status Order'] == 'Canceled'].value_counts().sum() / df['Status Order'].value_counts().sum() * 100
-        donut_chart_canceled = make_donut(round(c, 2), 'Canceled', 'red')
-        st.altair_chart(donut_chart_canceled, use_container_width=True)
+        b=df[df['Status Order'] == 'Booked'].value_counts().sum()
+        c=df[df['Status Order'] == 'Canceled'].value_counts().sum()
+        donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
+        st.altair_chart(donut_chart_greater)
     
     else:
         # Booked donut chart
         st.write("**Booked**")
-        b = df_month[df_month['Status Order'] == 'Booked'].value_counts().sum() / df_month['Status Order'].value_counts().sum() * 100
-        donut_chart_booked = make_donut(round(b, 2), 'Booked', 'green')
-        st.altair_chart(donut_chart_booked, use_container_width=True)
+        b=df_month[df_month['Status Order'] == 'Booked'].value_counts().sum()
+        c=df_month[df_month['Status Order'] == 'Canceled'].value_counts().sum()
+        donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
+        st.altair_chart(donut_chart_greater)
 
-        # Canceled donut chart
-        st.write("**Canceled**")
-        c = df_month[df_month['Status Order'] == 'Canceled'].value_counts().sum() / df_month['Status Order'].value_counts().sum() * 100
-        donut_chart_canceled = make_donut(round(c, 2), 'Canceled', 'red')
-        st.altair_chart(donut_chart_canceled, use_container_width=True)
 
 with col2:
     st.markdown('#### Total Orders by Month')
