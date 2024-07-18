@@ -204,12 +204,4 @@ with col2:
 
 with col3:
 
-    with st.expander('About', expanded=True):
-        st.write('''
-            - Data: [GBK E-Booking](https://example.com).
-            - :green[**Gains/Losses**]: Metrics for total estimated visitors, total orders, and total income.
-            - :green[**Booking Status**]: Percentage of bookings categorized as booked or canceled.
-            - :green[**Total Orders by Month**]: Number of orders per month.
-            - :green[**Number of Bookings per Venue**]: Number of bookings for each venue.
-            - :green[**Number of Bookings per Session Time**]: Number of bookings for each session time.
-        ''')
+
