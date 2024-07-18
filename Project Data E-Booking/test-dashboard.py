@@ -44,7 +44,7 @@ def make_donut(booked, canceled, input_color):
     ).properties(width=200, height=200)
 
     text = alt.Chart(pd.DataFrame({'text': [f'{booked_percentage:.1f}%']})).mark_text(
-        align='center', font="Lato", fontSize=30, fontWeight=600, color='#27AE60'
+        align='center', fontSize=30, fontWeight=600, color='#27AE60'
     ).encode(
         text='text:N'
     ).properties(width=200, height=200)
@@ -141,7 +141,7 @@ with col1:
         b=df[df['Status Order'] == 'Booked'].value_counts().sum()
         c=df[df['Status Order'] == 'Canceled'].value_counts().sum()
         donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
-        st.altair_chart(donut_chart_greater)
+        st.altair_chart(donut_chart_greater, use_container_width=True)
     
     else:
         # Booked donut chart
@@ -149,55 +149,112 @@ with col1:
         b=df_month[df_month['Status Order'] == 'Booked'].value_counts().sum()
         c=df_month[df_month['Status Order'] == 'Canceled'].value_counts().sum()
         donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
-        st.altair_chart(donut_chart_greater)
+        st.altair_chart(donut_chart_greater, use_container_width=True)
 
 
 with col2:
-    st.markdown('#### Total Orders by Month')
-    order_counts = df.groupby('Month')['Status Order'].count().reset_index()
-    order_chart = alt.Chart(order_counts).mark_bar().encode(
-        x=alt.X('Month', sort=month_order, title='Month'),
-        y=alt.Y('Status Order', title='Total Order'),
-        tooltip=['Month', 'Status Order']
-    ).properties(
-        width='container',  # Adjusted width
-        height=300   # Adjusted height
-    )
-    st.altair_chart(order_chart, use_container_width=True)
+    if month == "All":
+        st.markdown('#### Total Orders by Month')
+        order_counts = df.groupby('Month')['Status Order'].count().reset_index()
+        order_chart = alt.Chart(order_counts).mark_bar().encode(
+            x=alt.X('Month', sort=month_order, title='Month'),
+            y=alt.Y('Status Order', title='Total Order'),
+            tooltip=['Month', 'Status Order']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450   # Adjusted height
+        )
+        st.altair_chart(order_chart, use_container_width=True)
 
-    st.markdown('#### Number of Bookings per Venue')
-    venue_order_counts = df['Venue Name'].value_counts().reset_index()
-    venue_order_counts.columns = ['Venue Name', 'Count']
-    venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
-        x=alt.X('Count:Q', title='Number of Bookings'),
-        y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
-        tooltip=['Venue Name', 'Count']
-    ).properties(
-        width='container',  # Adjusted width
-        height=450,
-        background='rgba(0, 0, 0, 0)',  # Set background to transparent
-        padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
-    ).configure_view(
-        strokeOpacity=0  # Remove chart borders to make the background fully transparent
-    )
-    st.altair_chart(venue_chart, use_container_width=True)
+        st.markdown('#### Number of Bookings per Venue')
+        venue_order_counts = df['Venue Name'].value_counts().reset_index()
+        venue_order_counts.columns = ['Venue Name', 'Count']
+        venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
+            tooltip=['Venue Name', 'Count']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+        st.altair_chart(venue_chart, use_container_width=True)
 
-    st.markdown('#### Number of Bookings per Session Time')
-    session_order_counts = df['Session Time'].value_counts().reset_index()
-    session_order_counts.columns = ['Session Time', 'Count']
-    session_chart = alt.Chart(session_order_counts).mark_bar().encode(
-        x=alt.X('Count:Q', title='Number of Bookings'),
-        y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
-        tooltip=['Session Time', 'Count']
-    ).properties(
-        width='container',  # Adjusted width
-        height=450,
-        background='rgba(0, 0, 0, 0)',  # Set background to transparent
-        padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
-    ).configure_view(
-        strokeOpacity=0  # Remove chart borders to make the background fully transparent
-    )
-    st.altair_chart(session_chart, use_container_width=True)
+        st.markdown('#### Number of Bookings per Session Time')
+        session_order_counts = df['Session Time'].value_counts().reset_index()
+        session_order_counts.columns = ['Session Time', 'Count']
+        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
+            tooltip=['Session Time', 'Count']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+        st.altair_chart(session_chart, use_container_width=True)
+    else:
+        st.markdown('#### Total Orders by Month')
+        order_counts = df_month.groupby(df_month['Schedule Date'].dt.date).size().reset_index(name='Total Orders')
+        start_date = df_month['Schedule Date'].min().replace(day=1)
+        end_date = df_month['Schedule Date'].max().replace(day=1) + pd.DateOffset(months=1) - pd.DateOffset(days=1)
+        date_range = pd.date_range(start=start_date, end=end_date)
+
+        chart = alt.Chart(order_counts).mark_bar().encode(
+            x=alt.X('Schedule Date:T', title='Date', axis=alt.Axis(format='%d', labelAngle=-0)),
+            y=alt.Y('Total Orders:Q', title='Total Orders'),
+            tooltip=['Schedule Date:T', 'Total Orders:Q']
+        ).properties(
+            title='Total Orders per Date in ' + month,
+            # width='container',
+            height=450
+        ).configure_axisX(
+            labelAngle=-45,
+            labelFontSize=10,
+            tickCount=len(date_range),
+            labelOverlap=False
+        )
+        st.altair_chart(chart,  use_container_width=True)
+    
+        st.markdown('#### Number of Bookings per Venue')
+        venue_order_counts = df['Venue Name'].value_counts().reset_index()
+        venue_order_counts.columns = ['Venue Name', 'Count']
+        venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
+            tooltip=['Venue Name', 'Count']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+        st.altair_chart(venue_chart, use_container_width=True)
+
+        st.markdown('#### Number of Bookings per Session Time')
+        session_order_counts = df['Session Time'].value_counts().reset_index()
+        session_order_counts.columns = ['Session Time', 'Count']
+        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
+            tooltip=['Session Time', 'Count']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+        st.altair_chart(session_chart, use_container_width=True)
 
 with col3:
 
