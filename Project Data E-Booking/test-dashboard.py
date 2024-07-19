@@ -85,7 +85,7 @@ with st.sidebar:
 st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 
 # Dashboard Main Panel
-col1, col2, col3 = st.columns((1, 4, 1), gap='medium')
+col1, col2, col3 = st.columns((1.5, 4, 1), gap='medium')
 
 with col1:
     st.markdown('#### Gains/Losses')
@@ -223,7 +223,7 @@ with col2:
         st.altair_chart(chart,  use_container_width=True)
     
         st.markdown('#### Number of Bookings per Venue')
-        venue_order_counts = df['Venue Name'].value_counts().reset_index()
+        venue_order_counts = df_month['Venue Name'].value_counts().reset_index()
         venue_order_counts.columns = ['Venue Name', 'Count']
         venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
@@ -240,7 +240,7 @@ with col2:
         st.altair_chart(venue_chart, use_container_width=True)
 
         st.markdown('#### Number of Bookings per Session Time')
-        session_order_counts = df['Session Time'].value_counts().reset_index()
+        session_order_counts = df_month['Session Time'].value_counts().reset_index()
         session_order_counts.columns = ['Session Time', 'Count']
         session_chart = alt.Chart(session_order_counts).mark_bar().encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
