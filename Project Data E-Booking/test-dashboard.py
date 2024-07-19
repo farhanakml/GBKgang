@@ -17,11 +17,10 @@ alt.themes.enable("dark")
 df = pd.read_excel("Data E-booking GBK.xlsx")
 month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+
 def make_donut(booked, canceled, input_color):
     if input_color == 'green':
         chart_color = ['#27AE60', '#E74C3C']
-    if input_color == 'red':
-        chart_color = ['#E74C3C', '#781F16']
 
     total = booked + canceled
     booked_percentage = booked / total * 100
@@ -85,7 +84,7 @@ with st.sidebar:
 st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 
 # Dashboard Main Panel
-col1, col2, col3 = st.columns((1.5, 4, 1), gap='large')
+col1, col2 = st.columns((1.5, 5.5), gap='large')
 
 with col1:
     st.markdown('#### Gains/Losses')
@@ -104,7 +103,7 @@ with col1:
         df_month = df[df['Month'] == month]
         prev_month = month_order.index(month) - 1
         df_prev_month = df[df['Month'] == month_order[prev_month]]
-
+        
         if month == "January":
             visitor = df_month['Estimated Visitors'].sum()
             order = df_month['Type Date'].count()
@@ -137,7 +136,6 @@ with col1:
 
     if month == "All":
         # Booked donut chart
-        st.write("**Booked**")
         b=df[df['Status Order'] == 'Booked'].value_counts().sum()
         c=df[df['Status Order'] == 'Canceled'].value_counts().sum()
         donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
@@ -145,27 +143,69 @@ with col1:
     
     else:
         # Booked donut chart
-        st.write("**Booked**")
         b=df_month[df_month['Status Order'] == 'Booked'].value_counts().sum()
         c=df_month[df_month['Status Order'] == 'Canceled'].value_counts().sum()
         donut_chart_greater = make_donut(round(b,2), round(c,2), 'green')
         st.altair_chart(donut_chart_greater, use_container_width=True)
+    
+    with st.expander('About', expanded=True):
+            st.write('''
+                - Data: [GBK E-Booking](https://example.com).
+                - :green[**Gains/Losses**]: Metrics for total estimated visitors, total orders, and total income.
+                - :green[**Booking Status**]: Percentage of bookings categorized as booked or canceled.
+                - :green[**Total Orders by Month**]: Number of orders per month.
+                - :green[**Number of Bookings per Venue**]: Number of bookings for each venue.
+                - :green[**Number of Bookings per Session Time**]: Number of bookings for each session time.
+            ''')
 
 
 with col2:
-    if month == "All":
-        st.markdown('#### Total Orders by Month')
-        order_counts = df.groupby('Month')['Status Order'].count().reset_index()
-        order_chart = alt.Chart(order_counts).mark_bar().encode(
-            x=alt.X('Month', sort=month_order, title='Month'),
-            y=alt.Y('Status Order', title='Total Order'),
-            tooltip=['Month', 'Status Order']
-        ).properties(
-            width='container',  # Adjusted width
-            height=450   # Adjusted height
-        )
-        st.altair_chart(order_chart, use_container_width=True)
+    incol1, incol2 = st.columns((4, 1.5), gap='large')
+    with incol1 :
+        if month == "All":
+            st.markdown('#### Total Orders by Month')
+            order_counts = df.groupby('Month')['Status Order'].count().reset_index()
+            order_chart = alt.Chart(order_counts).mark_bar().encode(
+                x=alt.X('Month', sort=month_order, title='Month'),
+                y=alt.Y('Status Order', title='Total Order'),
+                tooltip=['Month', 'Status Order']
+            ).properties(
+                width='container',  # Adjusted width
+                height=450   # Adjusted height
+            )
+            st.altair_chart(order_chart, use_container_width=True)
 
+        else:
+            st.markdown('#### Total Orders by Month')
+            order_counts = df_month.groupby(df_month['Schedule Date'].dt.date).size().reset_index(name='Total Orders')
+            start_date = df_month['Schedule Date'].min().replace(day=1)
+            end_date = df_month['Schedule Date'].max().replace(day=1) + pd.DateOffset(months=1) - pd.DateOffset(days=1)
+            date_range = pd.date_range(start=start_date, end=end_date)
+
+            chart = alt.Chart(order_counts).mark_bar().encode(
+                x=alt.X('Schedule Date:T', title='Date', axis=alt.Axis(format='%d', labelAngle=-0)),
+                y=alt.Y('Total Orders:Q', title='Total Orders'),
+                tooltip=['Schedule Date:T', 'Total Orders:Q']
+            ).properties(
+                title='Total Orders per Date in ' + month,
+                # width='container',
+                height=450
+            ).configure_axisX(
+                labelAngle=-45,
+                labelFontSize=10,
+                tickCount=len(date_range),
+                labelOverlap=False
+            )
+            st.altair_chart(chart,  use_container_width=True)
+
+    with incol2:
+        st.markdown("**Peak Booking Times:** Most bookings occur in July and August.")
+        st.markdown("**Popular Venues:** Venue 1 and Venue 3 have the highest booking rates.")
+        st.markdown("**Recommendations:** Consider increasing marketing efforts in June due to historically low bookings.")
+
+        
+
+    if month == "All":
         st.markdown('#### Number of Bookings per Venue')
         venue_order_counts = df['Venue Name'].value_counts().reset_index()
         venue_order_counts.columns = ['Venue Name', 'Count']
@@ -182,46 +222,7 @@ with col2:
             strokeOpacity=0  # Remove chart borders to make the background fully transparent
         )
         st.altair_chart(venue_chart, use_container_width=True)
-
-        st.markdown('#### Number of Bookings per Session Time')
-        session_order_counts = df['Session Time'].value_counts().reset_index()
-        session_order_counts.columns = ['Session Time', 'Count']
-        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
-            x=alt.X('Count:Q', title='Number of Bookings'),
-            y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
-            tooltip=['Session Time', 'Count']
-        ).properties(
-            width='container',  # Adjusted width
-            height=450,
-            background='rgba(0, 0, 0, 0)',  # Set background to transparent
-            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
-        ).configure_view(
-            strokeOpacity=0  # Remove chart borders to make the background fully transparent
-        )
-        st.altair_chart(session_chart, use_container_width=True)
     else:
-        st.markdown('#### Total Orders by Month')
-        order_counts = df_month.groupby(df_month['Schedule Date'].dt.date).size().reset_index(name='Total Orders')
-        start_date = df_month['Schedule Date'].min().replace(day=1)
-        end_date = df_month['Schedule Date'].max().replace(day=1) + pd.DateOffset(months=1) - pd.DateOffset(days=1)
-        date_range = pd.date_range(start=start_date, end=end_date)
-
-        chart = alt.Chart(order_counts).mark_bar().encode(
-            x=alt.X('Schedule Date:T', title='Date', axis=alt.Axis(format='%d', labelAngle=-0)),
-            y=alt.Y('Total Orders:Q', title='Total Orders'),
-            tooltip=['Schedule Date:T', 'Total Orders:Q']
-        ).properties(
-            title='Total Orders per Date in ' + month,
-            # width='container',
-            height=450
-        ).configure_axisX(
-            labelAngle=-45,
-            labelFontSize=10,
-            tickCount=len(date_range),
-            labelOverlap=False
-        )
-        st.altair_chart(chart,  use_container_width=True)
-    
         st.markdown('#### Number of Bookings per Venue')
         venue_order_counts = df_month['Venue Name'].value_counts().reset_index()
         venue_order_counts.columns = ['Venue Name', 'Count']
@@ -239,6 +240,26 @@ with col2:
         )
         st.altair_chart(venue_chart, use_container_width=True)
 
+with col2:
+    if month == "All":
+        st.markdown('#### Number of Bookings per Session Time')
+        session_order_counts = df['Session Time'].value_counts().reset_index()
+        session_order_counts.columns = ['Session Time', 'Count']
+        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title='Number of Bookings'),
+            y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
+            tooltip=['Session Time', 'Count']
+        ).properties(
+            width='container',  # Adjusted width
+            height=450,
+            background='rgba(0, 0, 0, 0)',  # Set background to transparent
+            padding={'left': 5, 'top': 5, 'right': 5, 'bottom': 5}
+        ).configure_view(
+            strokeOpacity=0  # Remove chart borders to make the background fully transparent
+        )
+        st.altair_chart(session_chart, use_container_width=True)
+    
+    else:
         st.markdown('#### Number of Bookings per Session Time')
         session_order_counts = df_month['Session Time'].value_counts().reset_index()
         session_order_counts.columns = ['Session Time', 'Count']
@@ -255,16 +276,3 @@ with col2:
             strokeOpacity=0  # Remove chart borders to make the background fully transparent
         )
         st.altair_chart(session_chart, use_container_width=True)
-
-with col3:
-
-    with st.expander('About', expanded=True):
-        st.write('''
-            - Data: [GBK E-Booking](https://example.com).
-            - :green[**Gains/Losses**]: Metrics for total estimated visitors, total orders, and total income.
-            - :green[**Booking Status**]: Percentage of bookings categorized as booked or canceled.
-            - :green[**Total Orders by Month**]: Number of orders per month.
-            - :green[**Number of Bookings per Venue**]: Number of bookings for each venue.
-            - :green[**Number of Bookings per Session Time**]: Number of bookings for each session time.
-        ''')
-
