@@ -85,7 +85,7 @@ with st.sidebar:
 st.header("Hasil Analisa Data E-Booking Venue GBK Tahun 2023 :sparkles:")
 
 # Dashboard Main Panel
-col1, col2, col3 = st.columns((1.5, 4, 1), gap='medium')
+col1, col2, col3 = st.columns((1.5, 4, 1), gap='large')
 
 with col1:
     st.markdown('#### Gains/Losses')
