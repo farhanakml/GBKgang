@@ -173,6 +173,7 @@ with col2:
                 width='container',  # Adjusted width
                 height=450   # Adjusted height
             )
+            
             st.altair_chart(order_chart, use_container_width=True)
 
         else:
@@ -199,9 +200,19 @@ with col2:
             st.altair_chart(chart,  use_container_width=True)
 
     with incol2:
-        st.markdown("**Peak Booking Times:** Most bookings occur in July and August.")
-        st.markdown("**Popular Venues:** Venue 1 and Venue 3 have the highest booking rates.")
-        st.markdown("**Recommendations:** Consider increasing marketing efforts in June due to historically low bookings.")
+        if month == "All":
+            highest_month = df.groupby('Month').size().sort_values(ascending=False)
+            first_month = highest_month.index[0]
+            second_month = highest_month.index[1]
+            last_month = highest_month.index[-1]
+            highest_venue = df.groupby('Venue Name').size().sort_values(ascending=False)
+            first_venue = highest_venue.index[0]
+            second_venue = highest_venue.index[1]
+            st.markdown(f"**Peak Booking Times:** Most bookings occur in {first_month} and {second_month}.")
+            st.markdown(f"**Popular Venues:** {first_venue} and {second_venue} have the highest booking rates.")
+            st.markdown(f"**Recommendations:** Consider increasing marketing efforts in {last_month} due to historically low bookings.")
+        else:
+            st.markdown("test")
 
         
 
