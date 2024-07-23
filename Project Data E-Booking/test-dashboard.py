@@ -212,7 +212,26 @@ with col2:
             st.markdown(f"**Popular Venues:** {first_venue} and {second_venue} have the highest booking rates.")
             st.markdown(f"**Recommendations:** Consider increasing marketing efforts in {last_month} due to historically low bookings.")
         else:
-            st.markdown("test")
+            df_month = df[df['Month'] == month]
+            highest_venue = df_month.groupby('Venue Name').size().sort_values(ascending=False)
+            
+            if not highest_venue.empty:
+                first_venue = highest_venue.index[0]
+                second_venue = highest_venue.index[1] if len(highest_venue) > 1 else None
+                st.markdown(f"**Popular Venues:** {first_venue} and {second_venue} have the highest booking rates.")
+            else:
+                st.markdown("No bookings found for the selected month.")
+            
+            total_orders = df_month['Venue Name'].count()
+            st.markdown(f"**Total Orders in {month}:** {total_orders}")
+
+            highest_day = df_month.groupby(df_month['Schedule Date'].dt.date).size().sort_values(ascending=False)
+            if not highest_day.empty:
+                highest_booking_day = highest_day.index[0]
+                highest_booking_count = highest_day.iloc[0]
+                st.markdown(f"**Highest Day Booking:** The highest number of bookings was on {highest_booking_day} with {highest_booking_count} bookings.")
+            else:
+                st.markdown("No booking days found for the selected month.")
 
         
 
