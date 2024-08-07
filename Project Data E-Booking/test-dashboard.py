@@ -165,7 +165,7 @@ with col2:
         if month == "All":
             st.markdown('#### Total Orders by Month')
             order_counts = df.groupby('Month')['Status Order'].count().reset_index()
-            order_chart = alt.Chart(order_counts).mark_bar().encode(
+            order_chart = alt.Chart(order_counts).mark_bar(color='#30cb70').encode(
                 x=alt.X('Month', sort=month_order, title='Month'),
                 y=alt.Y('Status Order', title='Total Order'),
                 tooltip=['Month', 'Status Order']
@@ -183,7 +183,7 @@ with col2:
             end_date = df_month['Schedule Date'].max().replace(day=1) + pd.DateOffset(months=1) - pd.DateOffset(days=1)
             date_range = pd.date_range(start=start_date, end=end_date)
 
-            chart = alt.Chart(order_counts).mark_bar().encode(
+            chart = alt.Chart(order_counts).mark_bar(color='#30cb70').encode(
                 x=alt.X('Schedule Date:T', title='Date', axis=alt.Axis(format='%d', labelAngle=-0)),
                 y=alt.Y('Total Orders:Q', title='Total Orders'),
                 tooltip=['Schedule Date:T', 'Total Orders:Q']
@@ -239,7 +239,7 @@ with col2:
         st.markdown('#### Number of Bookings per Venue')
         venue_order_counts = df['Venue Name'].value_counts().reset_index()
         venue_order_counts.columns = ['Venue Name', 'Count']
-        venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
+        venue_chart = alt.Chart(venue_order_counts).mark_bar(color='#30cb70').encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
             y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
             tooltip=['Venue Name', 'Count']
@@ -256,7 +256,7 @@ with col2:
         st.markdown('#### Number of Bookings per Venue')
         venue_order_counts = df_month['Venue Name'].value_counts().reset_index()
         venue_order_counts.columns = ['Venue Name', 'Count']
-        venue_chart = alt.Chart(venue_order_counts).mark_bar().encode(
+        venue_chart = alt.Chart(venue_order_counts).mark_bar(color='#30cb70').encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
             y=alt.Y('Venue Name:N', sort='-x', title='Venue Name'),
             tooltip=['Venue Name', 'Count']
@@ -275,7 +275,7 @@ with col2:
         st.markdown('#### Number of Bookings per Session Time')
         session_order_counts = df['Session Time'].value_counts().reset_index()
         session_order_counts.columns = ['Session Time', 'Count']
-        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+        session_chart = alt.Chart(session_order_counts).mark_bar(color='#30cb70').encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
             y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
             tooltip=['Session Time', 'Count']
@@ -293,7 +293,7 @@ with col2:
         st.markdown('#### Number of Bookings per Session Time')
         session_order_counts = df_month['Session Time'].value_counts().reset_index()
         session_order_counts.columns = ['Session Time', 'Count']
-        session_chart = alt.Chart(session_order_counts).mark_bar().encode(
+        session_chart = alt.Chart(session_order_counts).mark_bar(color='#30cb70').encode(
             x=alt.X('Count:Q', title='Number of Bookings'),
             y=alt.Y('Session Time:N', sort='-x', title='Session Time'),
             tooltip=['Session Time', 'Count']
