@@ -2,6 +2,10 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 import plotly.express as px
+from streamlit_calendar import calendar
+import holidays
+from datetime import datetime
+import calendar as cal
 
 # Page configuration
 st.set_page_config(
@@ -232,8 +236,21 @@ with col2:
                 st.markdown(f"**Highest Day Booking:** The highest number of bookings was on {highest_booking_day} with {highest_booking_count} bookings.")
             else:
                 st.markdown("No booking days found for the selected month.")
+                
+            country = 'ID'
+            year = 2023
+            month_name = month
+            month_number = list(cal.month_name).index(month_name)
 
-        
+            holiday_list = holidays.CountryHoliday(country, years=year)
+            holiday_dates = {date: name for date, name in holiday_list.items()}
+            filtered_holidays = {date: name for date, name in holiday_dates.items() if date.month == month_number}
+            holiday_items = [f"{date.strftime('%d')} {month_name}: {name}" for date, name in filtered_holidays.items()]
+
+            st.markdown(f"**Holidays in {month_name} {year}:**")
+            for holiday in holiday_items:
+                st.write(holiday)
+
 
     if month == "All":
         st.markdown('#### Number of Bookings per Venue')
