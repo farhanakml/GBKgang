@@ -2,7 +2,6 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 import plotly.express as px
-from streamlit_calendar import calendar
 import holidays
 from datetime import datetime
 import calendar as cal
