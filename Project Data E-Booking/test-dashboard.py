@@ -247,7 +247,7 @@ with col2:
             filtered_holidays = {date: name for date, name in holiday_dates.items() if date.month == month_number}
             holiday_items = [f"{date.strftime('%d')} {month_name}: {name}" for date, name in filtered_holidays.items()]
 
-            st.markdown(f"**Holidays in {month_name} {year}:**")
+            st.markdown(f"**Holidays in {month_name} :**")
             for holiday in holiday_items:
                 st.write(holiday)
 
