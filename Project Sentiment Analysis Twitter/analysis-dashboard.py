@@ -5,26 +5,37 @@ import seaborn as sns
 from wordcloud import WordCloud
 import altair as alt
 
-# Membaca data dari file CSV
-# Ubah 'data.csv' menjadi path file Anda
-df = pd.read_excel('Hasil Sentiment Analysis GBK Juni 2024.xlsx')
-
-# Convert 'created_at' ke datetime
-df['created_at'] = pd.to_datetime(df['created_at'])
-
 # Page configuration
 st.set_page_config(
-    page_title="Dashboard Sentiment Analysis GBK",
+    page_title=f"Dashboard Sentiment Analysis GBK",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 col1, col2 = st.columns((6,4), gap = 'small')
-with col1:
-    st.title('Sentiment Analysis Dashboard for GBK')
 with col2:
-    month = st.selectbox("a", "b")
+    month = st.selectbox("Month :",('All', 'April','Mei', 'Juni'))
+    
+with col1:
+    st.title(f'Sentiment Analysis Dashboard for GBK - {month}' if month != 'All' else 'Sentiment Analysis Dashboard for GBK')
+
+
+# Ubah 'data.csv' menjadi path file Anda
+if month != 'All':
+    file = f"Hasil Sentiment Analysis GBK {month} 2024.xlsx"
+    df = pd.read_excel(file)
+else:
+    df_list = []
+    months = ['April', 'Mei', 'Juni']
+    for month in months:
+        df_awal = pd.read_excel(f"Hasil Sentiment Analysis GBK {month} 2024.xlsx")
+        df_list.append(df_awal)
+    df = pd.concat(df_list, ignore_index=True)
+
+# Convert 'created_at' ke datetime
+df['created_at'] = pd.to_datetime(df['created_at'])
+
 # Tabs
 tab1, tab2, tab3, tab4 = st.tabs(["All", "Positive 😊", "Negative ☹️", "Neutral 😐"])
 
