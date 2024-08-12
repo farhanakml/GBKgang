@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import altair as alt
-
+import numpy as np
 # Page configuration
 st.set_page_config(
     page_title="Dashboard Sentiment Analysis GBK",
@@ -12,12 +12,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-col1, col2 = st.columns((6,4), gap='small')
-with col2:
-    month = st.selectbox("Month:", ('All', 'April', 'Mei', 'Juni'))
-    
-with col1:
-    st.title(f'Sentiment Analysis Dashboard for GBK - {month}' if month != 'All' else 'Sentiment Analysis Dashboard for GBK')
+# Reserve space for the dynamic title
+title_placeholder = st.empty()
+
+# Selectbox for Month
+month = st.selectbox("Month:", ('All', 'April', 'Mei', 'Juni'))
+
+# Update the title based on the selected month
+title_placeholder.title(f'Sentiment Analysis Dashboard for GBK - {month}' if month != 'All' else 'Sentiment Analysis Dashboard for GBK')
 
 # Load data
 if month != 'All':
@@ -49,9 +51,13 @@ col1, col2, col3 = st.columns((2,2,2), gap='large')
 with col1:
     st.header('WordCloud')
     all_text = ' '.join(df['full_text'].dropna())
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
+    x, y = np.ogrid[:300, :300]
 
-    plt.figure(figsize=(10, 5))
+    mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2
+    mask = 255 * mask.astype(int)
+    wordcloud = WordCloud(background_color=None, mode='RGBA', mask=mask).generate(all_text)
+
+    plt.figure(figsize=(15, 7.5))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     st.pyplot(plt)
@@ -90,7 +96,7 @@ with col3:
         height=300
     )
 
-    st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True) 
 
 # Bar Charts for Top Occurring Words and Bigrams
 col1, col2 = st.columns((1, 1), gap='large')
