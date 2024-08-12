@@ -1,24 +1,13 @@
-# GBKgang
-떠나는 길에 네가 내게 말했지
-너는 바라는 게 너무나 많아
-잠깐이라도 널 안 바라보면
-머리에 불이 나버린다니까
-나는 흐르려는 눈물을 참고
-하려던 얘길 어렵게 누르고
-그래, 미안해라는 한 마디로
-너랑 나눈 날들 마무리했었지
-달디달고, 달디달고, 달디단, 밤양갱, 밤양갱
-내가 먹고 싶었던 건, 달디단, 밤양갱, 밤양갱이야
-떠나는 길에 네가 내게 말했지
-너는 바라는 게 너무나 많아
-아냐, 내가 늘 바란 건 하나야
-한 개뿐이야, 달디단, 밤양갱
-달디달고, 달디달고, 달디단, 밤양갱, 밤양갱
-내가 먹고 싶었던 건, 달디단, 밤양갱, 밤양갱이야
-상다리가 부러지고
-둘이서 먹다 하나가 쓰러져버려도
-나라는 사람을 몰랐던 넌
-떠나가다가 돌아서서 말했지
-너는 바라는 게 너무나 많아
-아냐, 내가 늘 바란 건 하나야
-한 개뿐이야, 달디단, 밤양갱
+# **Analisa Data E-Booking GBK Arena 2023 dan Analisis Sentimen GBK pada Platform Media Sosial X**
+
+## **Pusat Pengelolaan Komplek Gelora Bung Karno - Divisi Anggaran dan Perencanaan**
+
+*   Muhammad Farhan Akmal - Telkom University (1301210486)
+*   Ari Ziddan Nugraha - Telkom University (1301213338)
+*   Gibran Ariq Natakusuma - Telkom University (1301213180)
+
+### Gambaran Umum
+Proyek Kerja Praktek ini memiliki beberapa tujuan utama yang akan dicapai. Pertama, kami berupaya untuk mendapatkan informasi yang komprehensif dari data yang disediakan oleh pihak PPKGBK. Informasi ini akan mencakup berbagai aspek operasional dan pelayanan di GBK, yang dapat dianalisis lebih lanjut untuk memberikan wawasan mendalam mengenai pengelolaan kompleks ini.
+
+Selanjutnya, kami bertujuan untuk memperoleh sentimen terkait kompleks GBK berdasarkan tulisan pada platform X. Media sosial, khususnya X, merupakan sumber data yang kaya akan opini publik. Dengan menganalisis tulisan yang menyebutkan GBK, kami dapat memahami pandangan masyarakat secara lebih luas dan mendeteksi isu-isu yang mungkin belum terlihat oleh pihak pengelola
+
