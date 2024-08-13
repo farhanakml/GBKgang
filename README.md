@@ -11,3 +11,6 @@ Proyek Kerja Praktek ini memiliki beberapa tujuan utama yang akan dicapai. Perta
 
 Selanjutnya, kami bertujuan untuk memperoleh sentimen terkait kompleks GBK berdasarkan tulisan pada platform X. Media sosial, khususnya X, merupakan sumber data yang kaya akan opini publik. Dengan menganalisis tulisan yang menyebutkan GBK, kami dapat memahami pandangan masyarakat secara lebih luas dan mendeteksi isu-isu yang mungkin belum terlihat oleh pihak pengelola
 
+### Project Kami
+1. [Analisa Data E-Booking GBK Arena 2023](Project%20Data%20E-Booking)
+2. [Analisis Sentimen GBK pada Platform Media Sosial X](Project%20Sentiment%20Analysis%20Twitter)
