@@ -15,6 +15,9 @@ Selanjutnya, kami bertujuan untuk memperoleh sentimen terkait kompleks GBK berda
 1. [Analisa Data E-Booking GBK Arena 2023](Project%20Data%20E-Booking)
 2. [Analisis Sentimen GBK pada Platform Media Sosial X](Project%20Sentiment%20Analysis%20Twitter)
 
+### Tampilan Dashboard E-Booking
+![image](https://github.com/user-attachments/assets/a82ead80-edb1-48c9-84f0-ddcdd8e948bc)
+
 ### Tampilan Dashboard Sentimen Analysis
 ![image](https://github.com/user-attachments/assets/d6918eec-7723-466a-8fb3-fc15f411549d)
 
