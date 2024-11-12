@@ -45,97 +45,117 @@ df['bigrams'] = df['full_text'].apply(lambda x: list(zip(x.split(" ")[:-1], x.sp
 # Tabs
 tab1, tab2, tab3, tab4 = st.tabs(["All", "Positive 😊", "Negative ☹️", "Neutral 😐"])
 
-# Layout Columns
-col1, col2, col3 = st.columns((2,2,2), gap='large')
+# Define a dictionary to filter the DataFrame based on selected sentiment
+sentiment_filters = {
+    "All": None,
+    "Positive 😊": "positif",
+    "Negative ☹️": "negatif",
+    "Neutral 😐": "netral"
+}
 
-with col1:
-    st.header('WordCloud')
-    all_text = ' '.join(df['full_text'].dropna())
-    x, y = np.ogrid[:300, :300]
+# Function to filter the DataFrame based on sentiment
+def filter_data_by_sentiment(sentiment):
+    if sentiment_filters[sentiment] is not None:
+        return df[df['sentimen'] == sentiment_filters[sentiment]]
+    return df
 
-    mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2
-    mask = 255 * mask.astype(int)
-    wordcloud = WordCloud(background_color=None, mode='RGBA', mask=mask).generate(all_text)
+# Loop through each tab and apply the sentiment filter
+for sentiment_label, sentiment_tab in zip(["All", "Positive 😊", "Negative ☹️", "Neutral 😐"], [tab1, tab2, tab3, tab4]):
+    with sentiment_tab:
+        # Filter the data based on the selected tab's sentiment
+        filtered_df = filter_data_by_sentiment(sentiment_label)
 
-    plt.figure(figsize=(15, 7.5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    st.pyplot(plt)
+        # Layout Columns
+        col1, col2, col3 = st.columns((2,2,2), gap='large')
 
-with col2:
-    st.header('Tweets per Day')
-    df['date'] = df['created_at'].dt.date
-    tweet_per_day = df.groupby('date').size().reset_index(name='count')
+        with col1:
+            st.header('WordCloud')
+            all_text = ' '.join(filtered_df['full_text'].dropna())
+            x, y = np.ogrid[:300, :300]
 
-    # Line Chart for Tweets per Day
-    chart = alt.Chart(tweet_per_day).mark_line(point=True).encode(
-        x=alt.X('date:T', title='Date'),
-        y=alt.Y('count:Q', title='Number of Tweets'),
-        tooltip=['date:T', 'count:Q']
-    ).properties(
-        width=500,
-        height=300
-    )
+            mask = (x - 150) ** 2 + (y - 150) ** 2 > 130 ** 2
+            mask = 255 * mask.astype(int)
+            wordcloud = WordCloud(background_color=None, mode='RGBA', mask=mask).generate(all_text)
 
-    st.altair_chart(chart, use_container_width=True)
+            plt.figure(figsize=(15, 7.5))
+            plt.imshow(wordcloud, interpolation='bilinear')
+            plt.axis('off')
+            st.pyplot(plt)
 
-with col3:
-    st.header('Sentiment Distribution')
+        with col2:
+            st.header('Tweets per Day')
+            filtered_df['date'] = filtered_df['created_at'].dt.date
+            tweet_per_day = filtered_df.groupby('date').size().reset_index(name='count')
 
-    # Pie Chart for Sentiment Distribution
-    sentiment_count = df['sentimen'].value_counts().reset_index()
-    sentiment_count.columns = ['sentimen', 'count']
-    sentiment_count['percentage'] = (sentiment_count['count'] / sentiment_count['count'].sum()) * 100
+            # Line Chart for Tweets per Day
+            chart = alt.Chart(tweet_per_day).mark_line(point=True).encode(
+                x=alt.X('date:T', title='Date'),
+                y=alt.Y('count:Q', title='Number of Tweets'),
+                tooltip=['date:T', 'count:Q']
+            ).properties(
+                width=500,
+                height=300
+            )
 
-    chart = alt.Chart(sentiment_count).mark_arc(innerRadius=50).encode(
-        theta=alt.Theta(field="count", type="quantitative"),
-        color=alt.Color(field="sentimen", type="nominal", scale=alt.Scale(scheme='category20b')),
-        tooltip=['sentimen:N', 'count:Q', alt.Tooltip('percentage:Q', format='.2f')]
-    ).properties(
-        width=300,
-        height=300
-    )
+            st.altair_chart(chart, use_container_width=True)
 
-    st.altair_chart(chart, use_container_width=True) 
+        with col3:
+            st.header('Sentiment Distribution')
 
-# Bar Charts for Top Occurring Words and Bigrams
-col1, col2 = st.columns((1, 1), gap='large')
+            # Pie Chart for Sentiment Distribution
+            sentiment_count = filtered_df['sentimen'].value_counts().reset_index()
+            sentiment_count.columns = ['sentimen', 'count']
+            sentiment_count['percentage'] = (sentiment_count['count'] / sentiment_count['count'].sum()) * 100
 
-with col1:
-    st.header('Top 10 Occurring Words')
+            chart = alt.Chart(sentiment_count).mark_arc(innerRadius=50).encode(
+                theta=alt.Theta(field="count", type="quantitative"),
+                color=alt.Color(field="sentimen", type="nominal", scale=alt.Scale(scheme='category20b')),
+                tooltip=['sentimen:N', 'count:Q', alt.Tooltip('percentage:Q', format='.2f')]
+            ).properties(
+                width=300,
+                height=300
+            )
 
-    top_words = pd.Series(' '.join(df['full_text'].dropna()).lower().split()).value_counts().reset_index()
-    top_words.columns = ['Word', 'Count']
-    top_words = top_words.head(10)
+            st.altair_chart(chart, use_container_width=True) 
 
-    bar_chart_words = alt.Chart(top_words).mark_bar().encode(
-        x=alt.X('Count:Q', title='Count'),
-        y=alt.Y('Word:N', sort='-x', title='Top 10 Occurring Words')
-    ).properties(
-        width=400,
-        height=300
-    )
+        # Bar Charts for Top Occurring Words and Bigrams
+        col1, col2 = st.columns((1, 1), gap='large')
 
-    st.altair_chart(bar_chart_words, use_container_width=True)
+        with col1:
+            st.header('Top 10 Occurring Words')
 
-with col2:
-    st.header('Top 10 Occurring Bigrams')
+            top_words = pd.Series(' '.join(filtered_df['full_text'].dropna()).lower().split()).value_counts().reset_index()
+            top_words.columns = ['Word', 'Count']
+            top_words = top_words.head(10)
 
-    df['bigrams'] = df['full_text'].apply(lambda x: list(zip(x.split(" ")[:-1], x.split(" ")[1:])))
-    bigrams = pd.Series([f"{x[0]} {x[1]}" for sublist in df['bigrams'] for x in sublist]).value_counts().reset_index()
-    bigrams.columns = ['Bigram', 'Count']
-    top_bigrams = bigrams.head(10)
+            bar_chart_words = alt.Chart(top_words).mark_bar().encode(
+                x=alt.X('Count:Q', title='Count'),
+                y=alt.Y('Word:N', sort='-x', title='Top 10 Occurring Words')
+            ).properties(
+                width=400,
+                height=300
+            )
 
-    bar_chart_bigrams = alt.Chart(top_bigrams).mark_bar().encode(
-        x=alt.X('Count:Q', title='Count'),
-        y=alt.Y('Bigram:N', sort='-x', title='Top 10 Occurring Bigrams')
-    ).properties(
-        width=400,
-        height=300
-    )
+            st.altair_chart(bar_chart_words, use_container_width=True)
 
-    st.altair_chart(bar_chart_bigrams, use_container_width=True)
+        with col2:
+            st.header('Top 10 Occurring Bigrams')
 
-# Display Tweets Table
-st.header('Tweets')
-st.write(df[['sentimen', 'full_text']].head(10))
+            filtered_df['bigrams'] = filtered_df['full_text'].apply(lambda x: list(zip(x.split(" ")[:-1], x.split(" ")[1:])))
+            bigrams = pd.Series([f"{x[0]} {x[1]}" for sublist in filtered_df['bigrams'] for x in sublist]).value_counts().reset_index()
+            bigrams.columns = ['Bigram', 'Count']
+            top_bigrams = bigrams.head(10)
+
+            bar_chart_bigrams = alt.Chart(top_bigrams).mark_bar().encode(
+                x=alt.X('Count:Q', title='Count'),
+                y=alt.Y('Bigram:N', sort='-x', title='Top 10 Occurring Bigrams')
+            ).properties(
+                width=400,
+                height=300
+            )
+
+            st.altair_chart(bar_chart_bigrams, use_container_width=True)
+
+        # Display Tweets Table
+        st.header('Tweets')
+        st.write(filtered_df[['sentimen', 'full_text']].head(10))
